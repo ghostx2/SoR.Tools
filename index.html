@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>聽力測驗</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    #img-display {
+      display: none;
+      width: 300px;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+    }
+    #progress {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>聽力測驗</h1>
+
+  <label>上傳 MP3 音檔：<input type="file" id="mp3-upload" accept=".mp3"></label><br><br>
+  <label>上傳 CSV 檔案：<input type="file" id="csv-upload" accept=".csv"></label><br><br>
+
+  <audio id="audio" preload="auto" controls style="pointer-events: none; opacity: 0.5;"></audio>
+
+  <div id="progress">尚未開始測驗</div>
+  <br>
+
+  <button id="start-btn" disabled>開始測驗</button>
+  <button id="next-btn" disabled>下一題</button>
+  <button id="show-answer-btn" disabled>顯示正確答案</button>
+
+  <br><br>
+  <img id="img-display" src="" alt="圖片題目">
+
+  <script>
+    let segments = [];
+    let currentIndex = -1;
+    const audio = document.getElementById('audio');
+    const img = document.getElementById('img-display');
+    const progress = document.getElementById('progress');
+    const startBtn = document.getElementById('start-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const showAnswerBtn = document.getElementById('show-answer-btn');
+
+    // MP3 上傳處理
+    document.getElementById('mp3-upload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        audio.src = URL.createObjectURL(file);
+        audio.load();
+        enableStartIfReady();
+      }
+    });
+
+    // CSV 上傳處理
+    document.getElementById('csv-upload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const lines = event.target.result.split('\n').filter(l => l.trim() !== '');
+          segments = [];
+          for (let i = 1; i < lines.length; i++) { // 從第2行開始略過標頭
+            const [start, end, image] = lines[i].split(',');
+            if (!isNaN(parseFloat(start)) && !isNaN(parseFloat(end))) {
+              segments.push({
+                start: parseFloat(start),
+                end: parseFloat(end),
+                image: image.trim()
+              });
+            }
+          }
+          enableStartIfReady();
+        };
+        reader.readAsText(file, 'UTF-8');
+      }
+    });
+
+    function enableStartIfReady() {
+      if (audio.src && segments.length > 0) {
+        startBtn.disabled = false;
+        nextBtn.disabled = false;
+      }
+    }
+
+    function shuffle(array) {
+      const newArray = array.slice();
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    }
+
+    startBtn.addEventListener('click', () => {
+      if (segments.length === 0) return;
+      segments = shuffle(segments);
+      currentIndex = 0;
+      playSegment(currentIndex);
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex < segments.length - 1) {
+        currentIndex++;
+        playSegment(currentIndex);
+      } else {
+        alert("已經是最後一題");
+        audio.pause();
+        img.style.display = 'none';
+        showAnswerBtn.disabled = true;
+        progress.textContent = "測驗結束";
+      }
+    });
+
+    showAnswerBtn.addEventListener('click', () => {
+      if (currentIndex >= 0 && currentIndex < segments.length) {
+        const seg = segments[currentIndex];
+        img.src = seg.image;
+        img.style.display = 'block';
+      }
+    });
+
+    function playSegment(index) {
+      const seg = segments[index];
+      img.style.display = 'none';
+      audio.currentTime = seg.start;
+      audio.play();
+
+      showAnswerBtn.disabled = false;
+      progress.textContent = `第 ${index + 1} / ${segments.length} 題`;
+
+      const stopAudio = () => {
+        if (audio.currentTime >= seg.end) {
+          audio.pause();
+          audio.removeEventListener('timeupdate', stopAudio);
+        }
+      };
+      audio.addEventListener('timeupdate', stopAudio);
+    }
+  </script>
+</body>
+</html>
