@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>WaveSurfer 區段播放（支援上傳 MP3）</title>
+  <style>
+    #waveform { width: 100%; height: 100px; border: 1px solid #ccc; margin-bottom: 10px; }
+    body { font-family: sans-serif; padding: 20px; }
+  </style>
+</head>
+<body>
+  <h2>上傳 MP3 並選取播放區段</h2>
+
+  <input type="file" id="audio-upload" accept="audio/mp3,audio/mpeg"><br><br>
+  <div id="waveform"></div>
+
+  <button id="play-pause" disabled>播放 / 暫停</button>
+  <button id="clear" disabled>清除區段</button>
+
+  <!-- WaveSurfer v6 線上 CDN -->
+  <script src="https://unpkg.com/wavesurfer.js@6.6.2/dist/wavesurfer.min.js"></script>
+  <script src="https://unpkg.com/wavesurfer.js@6.6.2/dist/plugins/regions.min.js"></script>
+
+  <script>
+    const wavesurfer = WaveSurfer.create({
+      container: '#waveform',
+      waveColor: '#ccc',
+      progressColor: '#007bff',
+      height: 100,
+      backend: 'MediaElement',
+      plugins: [
+        WaveSurfer.regions.create()
+      ]
+    });
+
+    // 使用者上傳 MP3 檔案
+    document.getElementById('audio-upload').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) {
+        const audioURL = URL.createObjectURL(file);
+        wavesurfer.load(audioURL);
+      }
+    });
+
+    // 音訊準備好時啟用控制按鈕
+    wavesurfer.on('ready', () => {
+      wavesurfer.enableDragSelection({
+        color: 'rgba(0, 123, 255, 0.1)'
+      });
+      document.getElementById('play-pause').disabled = false;
+      document.getElementById('clear').disabled = false;
+    });
+
+    // 自動播放新建立的區段
+    wavesurfer.on('region-created', region => {
+      Object.values(wavesurfer.regions.list).forEach(r => {
+        if (r.id !== region.id) r.remove();
+      });
+      region.play();
+    });
+
+    wavesurfer.on('region-update-end', region => {
+      region.play();
+    });
+
+    document.getElementById('play-pause').addEventListener('click', () => {
+      wavesurfer.playPause();
+    });
+
+    document.getElementById('clear').addEventListener('click', () => {
+      Object.values(wavesurfer.regions.list).forEach(region => region.remove());
+    });
+  </script>
+</body>
+</html>
