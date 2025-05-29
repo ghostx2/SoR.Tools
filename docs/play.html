@@ -1,11 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>WaveSurfer 區段播放（支援上傳 MP3）</title>
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
   <style>
     body {
       font-family: sans-serif;
@@ -27,21 +24,20 @@
 <body>
   <h2>上傳 MP3 並選取播放區段</h2>
 
-  <input type="file" id="audio-upload" accept="audio/mp3,audio/mpeg"><br>
+  <input type="file" id="audio-upload" accept="audio/mp3,audio/mpeg" /><br />
   <div id="filename"></div>
   <div id="waveform"></div>
 
   <button id="play-pause" disabled>播放 / 暫停</button>
   <button id="clear" disabled>清除區段</button>
 
-  <!-- ✅ WaveSurfer CDN -->
-  <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js?v=20240529"></script>
-  <script src="https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.min.js?v=20240529"></script>
+  <script src="https://unpkg.com/wavesurfer.js@7.0.0/dist/wavesurfer.min.js"></script>
+  <script src="https://unpkg.com/wavesurfer.js@7.0.0/dist/plugins/regions.min.js"></script>
 
   <script>
     let wavesurfer = null;
 
-    document.getElementById('audio-upload').addEventListener('change', e => {
+    document.getElementById('audio-upload').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
         const audioURL = URL.createObjectURL(file);
@@ -68,14 +64,14 @@
           document.getElementById('clear').disabled = false;
         });
 
-        wavesurfer.on('region-created', region => {
-          Object.values(wavesurfer.regions.list).forEach(r => {
+        wavesurfer.on('region-created', (region) => {
+          Object.values(wavesurfer.regions.list).forEach((r) => {
             if (r.id !== region.id) r.remove();
           });
           region.play();
         });
 
-        wavesurfer.on('region-update-end', region => {
+        wavesurfer.on('region-update-end', (region) => {
           region.play();
         });
 
@@ -84,7 +80,7 @@
         };
 
         document.getElementById('clear').onclick = () => {
-          Object.values(wavesurfer.regions.list).forEach(region => region.remove());
+          Object.values(wavesurfer.regions.list).forEach((region) => region.remove());
         };
       }
     });
