@@ -3,31 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <title>WaveSurfer 區段播放（支援上傳 MP3）</title>
+  <!-- 🔒 強制不使用快取 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
     #waveform {
       width: 100%;
       height: 100px;
       border: 1px solid #ccc;
       margin-bottom: 10px;
     }
-    body {
-      font-family: sans-serif;
-      padding: 20px;
+    #filename {
+      color: #007bff;
+      font-weight: bold;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-  <h2>上傳 MP3 並選取播放區段 2</h2>
+  <h2>上傳 MP3 並選取播放區段</h2>
 
-  <input type="file" id="audio-upload" accept="audio/mp3,audio/mpeg"><br><br>
+  <input type="file" id="audio-upload" accept="audio/mp3,audio/mpeg"><br>
+  <div id="filename"></div>
   <div id="waveform"></div>
 
   <button id="play-pause" disabled>播放 / 暫停</button>
   <button id="clear" disabled>清除區段</button>
 
-  <!-- ✅ WaveSurfer 7 CDN -->
-  <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
-  <script src="https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.min.js"></script>
+  <!-- ✅ WaveSurfer v7 加上防快取參數 -->
+  <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js?v=20240529"></script>
+  <script src="https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.min.js?v=20240529"></script>
 
   <script>
     let wavesurfer = null;
@@ -36,10 +46,10 @@
       const file = e.target.files[0];
       if (file) {
         const audioURL = URL.createObjectURL(file);
+        document.getElementById('filename').textContent = `目前檔案：${file.name}`;
 
         if (wavesurfer) wavesurfer.destroy();
 
-        // ✅ 使用 WaveSurfer 7 寫法
         wavesurfer = WaveSurfer.create({
           container: '#waveform',
           waveColor: '#ccc',
