@@ -22,7 +22,7 @@
   </style>
 </head>
 <body>
-  <h2>上傳 MP3 並選取播放區段</h2>
+  <h2>上傳 MP3 並選取播放區段 1</h2>
 
   <input type="file" id="audio-upload" accept="audio/mp3,audio/mpeg" /><br />
   <div id="filename"></div>
@@ -35,6 +35,8 @@
   <script src="https://unpkg.com/wavesurfer.js@7.0.0/dist/plugins/regions.min.js"></script>
 
   <script>
+    console.log('window.RegionsPlugin:', window.RegionsPlugin); // 這裡會印出 plugin 物件或 undefined
+
     let wavesurfer = null;
 
     document.getElementById('audio-upload').addEventListener('change', (e) => {
