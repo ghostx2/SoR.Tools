@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>WaveSurfer 區段播放（支援上傳 MP3）</title>
-  <!-- 🔒 強制不使用快取 -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -35,7 +34,7 @@
   <button id="play-pause" disabled>播放 / 暫停</button>
   <button id="clear" disabled>清除區段</button>
 
-  <!-- ✅ WaveSurfer v7 加上防快取參數 -->
+  <!-- ✅ WaveSurfer CDN -->
   <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js?v=20240529"></script>
   <script src="https://unpkg.com/wavesurfer.js@7/dist/plugins/regions.min.js?v=20240529"></script>
 
@@ -57,7 +56,7 @@
           height: 100,
           url: audioURL,
           plugins: [
-            WaveSurfer.plugins.regions.create()
+            RegionsPlugin.create()
           ]
         });
 
